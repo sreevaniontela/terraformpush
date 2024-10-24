@@ -1,0 +1,37 @@
+provider "aws" {
+  region = "us-west-2"  # Change to your desired region
+}
+
+# Create an S3 bucket
+resource "aws_s3_bucket" "example" {
+  bucket = "my-unique-bucket-name-12345"  # Change to a unique bucket name
+  acl    = "private"  # Set the ACL (Access Control List)
+
+  versioning {
+    enabled = true  # Enable versioning
+  }
+
+  tags = {
+    Name        = "example-bucket"
+    Environment = "Dev"
+  }
+}
+
+# Optionally, set a bucket policy (for example, to allow public read access)
+resource "aws_s3_bucket_policy" "public_read" {
+  bucket = aws_s3_bucket.example.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid       = "PublicReadGetObject"
+        Effect    = "Allow"
+        Principal = "*"
+        Action    = "s3:GetObject"
+        Resource  = "${aws_s3_bucket.example.arn}/*"
+      }
+    ]
+  })
+}
+
